@@ -1,9 +1,11 @@
-package com.proyecto.app.repositorio;
+package com.proyecto.app.repositorios;
+
+import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.proyecto.app.entidad.Poder;
+import com.proyecto.app.entidades.Poder;
 
 /**
  * 
@@ -13,5 +15,7 @@ import com.proyecto.app.entidad.Poder;
  */
 @Repository
 public interface IPoderRepositorio extends CrudRepository<Poder, Integer> {
+
+	Optional<Poder> findByNombre(String nombre);
 
 }

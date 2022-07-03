@@ -1,4 +1,4 @@
-package com.proyecto.app.repositorio;
+package com.proyecto.app.repositorios;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -6,7 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import com.proyecto.app.entidad.Poder;
+import com.proyecto.app.entidades.Poder;
+import com.proyecto.app.repositorios.IPoderRepositorio;
 
 /**
  * 
