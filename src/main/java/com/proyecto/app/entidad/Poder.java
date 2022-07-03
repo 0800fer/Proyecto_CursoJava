@@ -6,7 +6,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import lombok.AllArgsConstructor;
@@ -14,7 +13,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
+ * 
  * Definición de la entidad que representa un PODER
+ * 
  */
 @Data
 @AllArgsConstructor
@@ -28,8 +29,7 @@ public class Poder {
 	@Column(name = "id")
 	private Integer id;
 
-	@Column(name = "nombre")
-	@NotNull
+	@Column(name = "nombre", unique = true)
 	@Size(max = 50)
 	private String nombre;
 
