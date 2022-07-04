@@ -121,33 +121,33 @@ class PoderServicioTest {
 		assertThat(nuevoPoder.getId()).isEqualTo(poderIdParam);
 	}
 
+	// JUnit test for updateEmployee method
 	@DisplayName("Test para actualizar un Poder")
 	@Test
 	void actualizarPoderTest() {
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
 		given(poderRepositorio.save(poder)).willReturn(poder);
-		poder.setNombre("Volar más rápido");
-
+		poder.setNombre("Nuevo");
+		poder.setDescripcion("Nueva");
 		// LLAMADA A MÉTODO A TESTEAR
 		Poder poderActualizado = poderServicio.actualizarPoder(poder);
 
 		// COMPROBACIONES DEL RESULTADO ESPERADO
-		assertThat(poderActualizado.getNombre()).isEqualTo("Volar más rápido");
+		assertThat(poderActualizado.getNombre()).isEqualTo("Nuevo");
+		assertThat(poderActualizado.getDescripcion()).isEqualTo("Nueva");
 	}
 
 	@DisplayName("Test para eliminar un Poder")
 	@Test
 	void eliminarPoderTest() {
-		// given - precondition or setup
-		final Integer poderIdParam = Integer.valueOf("1");
+		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
+		willDoNothing().given(poderRepositorio).delete(poder);
 
-		willDoNothing().given(poderRepositorio).deleteById(poderIdParam);
+		// LLAMADA A MÉTODO A TESTEAR
+		poderServicio.borrarPoder(poder);
 
-		// when - action or the behaviour that we are going test
-		poderServicio.borrarPoder(poderIdParam);
-
-		// then - verify the output
-		verify(poderRepositorio, times(1)).deleteById(poderIdParam);
+		// COMPROBACIONES DEL RESULTADO ESPERADO
+		verify(poderRepositorio, times(1)).delete(poder);
 	}
 
 }

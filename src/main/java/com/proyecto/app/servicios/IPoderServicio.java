@@ -22,5 +22,5 @@ public interface IPoderServicio {
 
 	Poder actualizarPoder(Poder poder);
 
-	void borrarPoder(Integer id);
+	void borrarPoder(Poder poder);
 }

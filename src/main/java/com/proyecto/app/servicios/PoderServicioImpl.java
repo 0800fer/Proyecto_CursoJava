@@ -46,13 +46,13 @@ public class PoderServicioImpl implements IPoderServicio {
 	}
 
 	@Override
-	public Poder actualizarPoder(Poder poderActualizado) {
-		return poderRepositorio.save(poderActualizado);
+	public Poder actualizarPoder(Poder poder) {
+		return poderRepositorio.save(poder);
 	}
 
 	@Override
-	public void borrarPoder(Integer id) {
-		poderRepositorio.deleteById(id);
+	public void borrarPoder(Poder poder) {
+		poderRepositorio.delete(poder);
 
 	}
 
