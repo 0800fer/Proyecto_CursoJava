@@ -121,7 +121,6 @@ class PoderServicioTest {
 		assertThat(nuevoPoder.getId()).isEqualTo(poderIdParam);
 	}
 
-	// JUnit test for updateEmployee method
 	@DisplayName("Test para actualizar un Poder")
 	@Test
 	void actualizarPoderTest() {
