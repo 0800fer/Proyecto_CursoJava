@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import com.proyecto.app.entidades.Poder;
+import com.proyecto.app.entidades.Superheroe;
 
 /**
  * 
@@ -16,24 +16,24 @@ import com.proyecto.app.entidades.Poder;
  */
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class PoderRepositorioTest {
+class SuperheroeRepositorioTest {
 	@Autowired
-	IPoderRepositorio repo;
+	ISuperheroeRepositorio repo;
 
 	@Test
 	@DisplayName("Test para confirmar operatividad del repositorio con constructor vacio")
 	void testRepositorioConConstructorVacio() {
-		Poder poder = new Poder();
-		repo.save(poder);
+		Superheroe superheroe = new Superheroe();
+		repo.save(superheroe);
 
-		Assertions.assertNotNull(poder.getId());
+		Assertions.assertNotNull(superheroe.getId());
 	}
 
 	@Test
 	@DisplayName("Test para confirmar operatividad del repositorio con constructor lleno")
 	void testRepositorioConConstructorLleno() {
-		Poder poder = new Poder(1, "Electricidad", "Descripcion");
-		repo.save(poder);
+		Superheroe superheroe = new Superheroe(1, "Batman", "Descripcion", true);
+		repo.save(superheroe);
 
 		Assertions.assertNotNull(repo.findAll());
 	}

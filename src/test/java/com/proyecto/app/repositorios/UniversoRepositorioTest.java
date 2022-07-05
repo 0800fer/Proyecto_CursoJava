@@ -7,33 +7,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import com.proyecto.app.entidades.Poder;
+import com.proyecto.app.entidades.Universo;
 
 /**
  * 
- * Test: comprueba que el repositorio de la entidad PODER está operativo
+ * Test: comprueba que el repositorio de la entidad Universo está operativo
  *
  */
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class PoderRepositorioTest {
+class UniversoRepositorioTest {
 	@Autowired
-	IPoderRepositorio repo;
+	IUniversoRepositorio repo;
 
 	@Test
 	@DisplayName("Test para confirmar operatividad del repositorio con constructor vacio")
 	void testRepositorioConConstructorVacio() {
-		Poder poder = new Poder();
-		repo.save(poder);
+		Universo universo = new Universo();
+		repo.save(universo);
 
-		Assertions.assertNotNull(poder.getId());
+		Assertions.assertNotNull(universo.getId());
 	}
 
 	@Test
 	@DisplayName("Test para confirmar operatividad del repositorio con constructor lleno")
 	void testRepositorioConConstructorLleno() {
-		Poder poder = new Poder(1, "Electricidad", "Descripcion");
-		repo.save(poder);
+		Universo universo = new Universo(1, "Marvel", "Descripcion");
+		repo.save(universo);
 
 		Assertions.assertNotNull(repo.findAll());
 	}
