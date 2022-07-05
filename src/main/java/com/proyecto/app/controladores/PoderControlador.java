@@ -88,7 +88,7 @@ public class PoderControlador {
 	 */
 	@GetMapping("/{id}")
 	public ResponseEntity<PoderDTO> buscarPoderPorId(@PathVariable(name = "id") Integer idPoder) {
-		logger.debug("Obteniendo inspeccion con id {}", idPoder);
+		logger.debug("Obteniendo poder con id {}", idPoder);
 
 		// Validacion
 		Optional<Poder> poder = servicio.buscarPoderPorId(idPoder);

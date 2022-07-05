@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PoderDTO {
+public class UniversoDTO {
 
 	private Integer id;
 	private String nombre;
