@@ -7,7 +7,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import com.proyecto.app.entidades.Poder;
-import com.proyecto.app.repositorios.IPoderRepositorio;
 
 /**
  * 
