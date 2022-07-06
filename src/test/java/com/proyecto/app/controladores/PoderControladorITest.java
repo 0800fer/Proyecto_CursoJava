@@ -123,13 +123,13 @@ class PoderControladorITest {
 		Poder poderActualizado = Poder.builder().nombre("Nuevo").descripcion("Nueva").build();
 
 		// LLAMADA A MÉTODO A TESTEAR
-		ResultActions response = mockMvc.perform(put(baseUrl + "/{id}", poderActualizado.getId())
+		ResultActions response = mockMvc.perform(put(baseUrl + "/{id}", poderGuardado.getId())
 				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(poderActualizado)));
 
 		// COMPROBACIONES DEL RESULTADO ESPERADO
 		response.andExpect(status().isOk()).andDo(print())
 				.andExpect(jsonPath("$.nombre", is(poderActualizado.getNombre())))
-				.andExpect(jsonPath("$.email", is(poderActualizado.getDescripcion())));
+				.andExpect(jsonPath("$.descripcion", is(poderActualizado.getDescripcion())));
 	}
 
 	@DisplayName("Test para el endpoint PUT /api/poderes/{id} Escenario negativo")
