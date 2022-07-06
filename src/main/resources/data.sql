@@ -8,4 +8,5 @@ INSERT INTO public.universos (nombre,descripcion) VALUES
 	 
 INSERT INTO public.superheroes (nombre,historia) VALUES
 	 ('Batman','Descripción del heroe Batman'),
+	 ('Aquaman','Descripción del heroe Aquaman'),
 	 ('Superman', 'Descripción del heroe Superman');

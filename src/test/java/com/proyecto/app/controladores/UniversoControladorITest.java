@@ -124,13 +124,13 @@ class UniversoControladorITest {
 		Universo universoActualizado = Universo.builder().nombre("Nuevo").descripcion("Nueva").build();
 
 		// LLAMADA A MÉTODO A TESTEAR
-		ResultActions response = mockMvc.perform(put(baseUrl + "/{id}", universoActualizado.getId())
+		ResultActions response = mockMvc.perform(put(baseUrl + "/{id}", universoGuardado.getId())
 				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(universoActualizado)));
 
 		// COMPROBACIONES DEL RESULTADO ESPERADO
 		response.andExpect(status().isOk()).andDo(print())
 				.andExpect(jsonPath("$.nombre", is(universoActualizado.getNombre())))
-				.andExpect(jsonPath("$.email", is(universoActualizado.getDescripcion())));
+				.andExpect(jsonPath("$.descripcion", is(universoActualizado.getDescripcion())));
 	}
 
 	@DisplayName("Test para el endpoint PUT /api/universos/{id} Escenario negativo")

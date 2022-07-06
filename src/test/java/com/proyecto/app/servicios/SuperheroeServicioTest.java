@@ -37,7 +37,7 @@ class SuperheroeServicioTest {
 		superheroe = Superheroe.builder().id(1).nombre("Batman").historia("Descripcion de Batman").build();
 	}
 
-	@DisplayName("Test para obtener lista de superheroes (Con valores)")
+	@DisplayName("Test para obtener lista de todos los superheroes (Con valores)")
 	@Test
 	void listarTodosLosSuperheroeesPositivoTest() {
 		// DEFINICIÓN DE VARIABLES DE ENTRADA
@@ -48,13 +48,13 @@ class SuperheroeServicioTest {
 		given(superheroeRepositorio.findAll()).willReturn(List.of(superheroe, superheroe2));
 
 		// LLAMADA A MÉTODO A TESTEAR
-		List<Superheroe> superheroees = superheroeServicio.listarTodosLosSuperheroes();
+		List<Superheroe> superheroes = superheroeServicio.listarTodosLosSuperheroes();
 
 		// COMPROBACIONES DEL RESULTADO ESPERADO
-		assertThat(superheroees).isNotNull().hasSize(2);
+		assertThat(superheroes).isNotNull().hasSize(2);
 	}
 
-	@DisplayName("Test para obtener lista de superheroes (Vacia)")
+	@DisplayName("Test para obtener lista de todos los superheroes (Vacia)")
 	@Test
 	void listarTodosLosSuperheroeesNegativoTest() {
 
@@ -62,10 +62,10 @@ class SuperheroeServicioTest {
 		given(superheroeRepositorio.findAll()).willReturn(Collections.emptyList());
 
 		// LLAMADA A MÉTODO A TESTEAR
-		List<Superheroe> superheroees = superheroeServicio.listarTodosLosSuperheroes();
+		List<Superheroe> superheroes = superheroeServicio.listarTodosLosSuperheroes();
 
 		// COMPROBACIONES DEL RESULTADO ESPERADO
-		assertThat(superheroees).isEmpty();
+		assertThat(superheroes).isEmpty();
 	}
 
 	@DisplayName("Test para buscar un superheroe (Positivo)")

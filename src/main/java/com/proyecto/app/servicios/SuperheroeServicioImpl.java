@@ -60,4 +60,22 @@ public class SuperheroeServicioImpl implements ISuperheroeServicio {
 		superheroeRepositorio.delete(superheroe);
 	}
 
+	@Override
+	public void matarSuperheroe(Superheroe superheroe) {
+		if (Boolean.FALSE.equals(superheroe.getEstaVivo())) {
+			throw new IllegalArgumentException("El superheroe ya se encuentra muerto");
+		}
+		superheroe.setEstaVivo(false);
+		superheroeRepositorio.save(superheroe);
+	}
+
+	@Override
+	public void resucitarSuperheroe(Superheroe superheroe) {
+		if (Boolean.TRUE.equals(superheroe.getEstaVivo())) {
+			throw new IllegalArgumentException("El superheroe ya se encuentra vivo");
+		}
+		superheroe.setEstaVivo(true);
+		superheroeRepositorio.save(superheroe);
+	}
+
 }

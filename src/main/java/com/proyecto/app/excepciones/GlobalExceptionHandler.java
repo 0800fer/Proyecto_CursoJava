@@ -28,7 +28,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@ExceptionHandler
 	protected ResponseEntity<ErrorResponse> handleException(IllegalArgumentException exc) {
-		HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+		HttpStatus httpStatus = HttpStatus.NOT_ACCEPTABLE;
 		return buildResponseEntity(httpStatus, exc);
 	}
 

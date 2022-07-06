@@ -7,7 +7,8 @@ import com.proyecto.app.entidades.Superheroe;
 
 /**
  * 
- * Interface que define el CRUD a ser implementado en la entidad Superheroe
+ * Interface que define los servicios a ser implementados en la entidad
+ * Superheroe
  * 
  */
 public interface ISuperheroeServicio {
@@ -20,9 +21,13 @@ public interface ISuperheroeServicio {
 
 	Optional<Superheroe> buscarSuperheroePorNombre(String nombre);
 
-	Superheroe crearSuperheroe(Superheroe poder);
+	Superheroe crearSuperheroe(Superheroe superheroe);
 
-	Superheroe actualizarSuperheroe(Superheroe poder);
+	Superheroe actualizarSuperheroe(Superheroe superheroe);
 
-	void borrarSuperheroe(Superheroe poder);
+	void borrarSuperheroe(Superheroe superheroe);
+
+	void matarSuperheroe(Superheroe superheroe);
+
+	void resucitarSuperheroe(Superheroe superheroe);
 }
