@@ -15,6 +15,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,10 +27,13 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proyecto.app.entidades.Universo;
+import com.proyecto.app.repositorios.IPoderRepositorio;
+import com.proyecto.app.repositorios.ISuperheroeRepositorio;
 import com.proyecto.app.repositorios.IUniversoRepositorio;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
+@ExtendWith(MockitoExtension.class)
 class UniversoControladorITest {
 
 	@Autowired
@@ -38,11 +43,19 @@ class UniversoControladorITest {
 	private IUniversoRepositorio universoRepositorio;
 
 	@Autowired
+	private ISuperheroeRepositorio superheroeRepositorio;
+
+	@Autowired
+	private IPoderRepositorio poderRepositorio;
+
+	@Autowired
 	private ObjectMapper objectMapper;
 
 	@BeforeEach
 	void setup() {
+		superheroeRepositorio.deleteAll();
 		universoRepositorio.deleteAll();
+		poderRepositorio.deleteAll();
 	}
 
 	final String baseUrl = "http://localhost:8080/api/universos";
@@ -52,15 +65,16 @@ class UniversoControladorITest {
 	void dadaUnaListaDeUniversos_cuandoListarTodosLosUniversos_devuelveListaUniversos() throws Exception {
 
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
-		List<Universo> listaUniversos = new ArrayList<>();
-		listaUniversos.add(Universo.builder().nombre("Marvel").descripcion("Descripcion").build());
-		listaUniversos.add(Universo.builder().nombre("Disney").descripcion("Descripcion").build());
-		universoRepositorio.saveAll(listaUniversos);
+		List<Universo> universos = new ArrayList<>();
+		universos.add(Universo.builder().nombre("Disney").build());
+		universos.add(Universo.builder().nombre("Marvel").build());
+		universoRepositorio.saveAll(universos);
+
 		// LLAMADA A MÉTODO A TESTEAR
 		ResultActions response = mockMvc.perform(get(baseUrl));
 
 		// COMPROBACIONES DEL RESULTADO ESPERADO
-		response.andExpect(status().isOk()).andDo(print()).andExpect(jsonPath("$.size()", is(listaUniversos.size())));
+		response.andExpect(status().isOk()).andDo(print()).andExpect(jsonPath("$.size()", is(universos.size())));
 
 	}
 

@@ -80,17 +80,17 @@ public class SuperheroeControlador {
 	 * 
 	 */
 	@PostMapping()
-	public ResponseEntity<SuperheroeDTO> crearSuperheroe(@RequestBody SuperheroeDTO superheroeDTO) {
+	public ResponseEntity<Superheroe> crearSuperheroe(@RequestBody Superheroe superheroeDTO) {
 		logger.debug("Creando superheroe con data {}", superheroeDTO);
 		Optional<Superheroe> superheroeYaExiste = servicio.buscarSuperheroePorNombre(superheroeDTO.getNombre());
 		if (superheroeYaExiste.isPresent()) {
 			throw new DuplicateKeyException("Ya existe superheroe con nombre: " + superheroeDTO.getNombre());
 		}
 		// DTO a entidad
-		Superheroe superheroe = servicio.crearSuperheroe(modelMapper.map(superheroeDTO, Superheroe.class));
+		Superheroe superheroe = servicio.crearSuperheroe(superheroeDTO);
 		// entidad a DTO
 		SuperheroeDTO superheroeResponse = modelMapper.map(superheroe, SuperheroeDTO.class);
-		return new ResponseEntity<>(superheroeResponse, HttpStatus.CREATED);
+		return new ResponseEntity<>(superheroe, HttpStatus.CREATED);
 	}
 
 	/**
@@ -125,7 +125,7 @@ public class SuperheroeControlador {
 	 */
 	@PutMapping("{id}")
 	public ResponseEntity<Superheroe> actualizarSuperheroe(@PathVariable(value = "id") Integer idSuperheroe,
-			@RequestBody SuperheroeDTO superheroeDTO) {
+			@RequestBody Superheroe superheroeDTO) {
 
 		logger.debug("Actualizando superheroe con id {} y data {}", idSuperheroe, superheroeDTO);
 

@@ -32,7 +32,7 @@ public class Universo {
 	private Integer id;
 
 	@Column(name = "nombre", unique = true)
-	@Size(max = 50)
+	@Size(max = 50, message = "Excede máxima longitut: 50")
 	private String nombre;
 
 	@Column(name = "descripcion")

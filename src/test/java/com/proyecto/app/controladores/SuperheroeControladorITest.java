@@ -25,7 +25,9 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proyecto.app.entidades.Superheroe;
+import com.proyecto.app.entidades.Universo;
 import com.proyecto.app.repositorios.ISuperheroeRepositorio;
+import com.proyecto.app.repositorios.IUniversoRepositorio;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -38,14 +40,18 @@ class SuperheroeControladorITest {
 	private ISuperheroeRepositorio superheroeRepositorio;
 
 	@Autowired
+	private IUniversoRepositorio universoRepositorio;
+
+	@Autowired
 	private ObjectMapper objectMapper;
+
+	final String baseUrl = "http://localhost:8080/api/superheroes";
 
 	@BeforeEach
 	void setup() {
 		superheroeRepositorio.deleteAll();
+		universoRepositorio.deleteAll();
 	}
-
-	final String baseUrl = "http://localhost:8080/api/superheroes";
 
 	@DisplayName("Test para el endpoint GET /api/superheroes")
 	@Test
@@ -53,8 +59,12 @@ class SuperheroeControladorITest {
 
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
 		List<Superheroe> listaSuperheroes = new ArrayList<>();
-		listaSuperheroes.add(Superheroe.builder().nombre("Marvel").historia("Historia").build());
-		listaSuperheroes.add(Superheroe.builder().nombre("Disney").historia("Historia").build());
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		listaSuperheroes.add(
+				Superheroe.builder().nombre("Wagner").historia("Historia").universoId(universoSalvado.getId()).build());
+		listaSuperheroes.add(
+				Superheroe.builder().nombre("Disney").historia("Historia").universoId(universoSalvado.getId()).build());
 		superheroeRepositorio.saveAll(listaSuperheroes);
 		// LLAMADA A MÉTODO A TESTEAR
 		ResultActions response = mockMvc.perform(get(baseUrl));
@@ -70,10 +80,16 @@ class SuperheroeControladorITest {
 
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
 		List<Superheroe> listaSuperheroes = new ArrayList<>();
-		listaSuperheroes.add(Superheroe.builder().nombre("Batman").historia("Historia").build());
-		listaSuperheroes.add(Superheroe.builder().nombre("Superman").historia("Historia").build());
-		listaSuperheroes.add(Superheroe.builder().nombre("Supergirl").historia("Historia").build());
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		listaSuperheroes.add(
+				Superheroe.builder().nombre("Batman").historia("Historia").universoId(universoSalvado.getId()).build());
+		listaSuperheroes.add(Superheroe.builder().nombre("Superman").historia("Historia")
+				.universoId(universoSalvado.getId()).build());
+		listaSuperheroes.add(Superheroe.builder().nombre("Supergirl").historia("Historia")
+				.universoId(universoSalvado.getId()).build());
 		superheroeRepositorio.saveAll(listaSuperheroes);
+		System.out.println(listaSuperheroes);
 		// LLAMADA A MÉTODO A TESTEAR
 		ResultActions response = mockMvc.perform(get(baseUrl + "/buscar?nombre=super"));
 
@@ -82,15 +98,20 @@ class SuperheroeControladorITest {
 
 	}
 
-	@DisplayName("Test para el endpoint GET /api/superheroes/buscar?nombre= (Negativo")
+	@DisplayName("Test para el endpoint GET /api/superheroes/buscar?nombre= (Negativo)")
 	@Test
 	void dadaUnaListaDeSuperheroes_cuandoListarSuperheroesConFiltro_devuelveListaVacia() throws Exception {
 
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
 		List<Superheroe> listaSuperheroes = new ArrayList<>();
-		listaSuperheroes.add(Superheroe.builder().nombre("Batman").historia("Historia").build());
-		listaSuperheroes.add(Superheroe.builder().nombre("Superman").historia("Historia").build());
-		listaSuperheroes.add(Superheroe.builder().nombre("Supergirl").historia("Historia").build());
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		listaSuperheroes.add(
+				Superheroe.builder().nombre("Batman").historia("Historia").universoId(universoSalvado.getId()).build());
+		listaSuperheroes.add(Superheroe.builder().nombre("Superman").historia("Historia")
+				.universoId(universoSalvado.getId()).build());
+		listaSuperheroes.add(Superheroe.builder().nombre("Supergirl").historia("Historia")
+				.universoId(universoSalvado.getId()).build());
 		superheroeRepositorio.saveAll(listaSuperheroes);
 		// LLAMADA A MÉTODO A TESTEAR
 		ResultActions response = mockMvc.perform(get(baseUrl + "/buscar?nombre=mo"));
@@ -105,7 +126,10 @@ class SuperheroeControladorITest {
 	void dadoUnObjetoSuperheroe_cuandoCrearSuperheroe_devuelveSuperheroeCreado() throws Exception {
 
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
-		Superheroe superheroe = Superheroe.builder().nombre("Marvel").historia("Historia").build();
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		Superheroe superheroe = Superheroe.builder().nombre("Wagner").historia("Historia")
+				.universoId(universoSalvado.getId()).build();
 
 		// LLAMADA A MÉTODO A TESTEAR
 		ResultActions response = mockMvc.perform(post(baseUrl).contentType(MediaType.APPLICATION_JSON)
@@ -122,7 +146,10 @@ class SuperheroeControladorITest {
 	@Test
 	void dadoSuperheroeId_cuandoBuscarPorId_devuelveSuperheroe() throws Exception {
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
-		Superheroe superheroe = Superheroe.builder().nombre("Marvel").historia("Historia").build();
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		Superheroe superheroe = Superheroe.builder().nombre("Wagner").historia("Historia")
+				.universoId(universoSalvado.getId()).build();
 		superheroeRepositorio.save(superheroe);
 
 		// LLAMADA A MÉTODO A TESTEAR
@@ -139,7 +166,10 @@ class SuperheroeControladorITest {
 	void dadoSuperheroeId_cuandoBuscarPorId_devuelveVacio() throws Exception {
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
 		Integer superheroeId = 1;
-		Superheroe superheroe = Superheroe.builder().nombre("Marvel").historia("Historia").build();
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		Superheroe superheroe = Superheroe.builder().nombre("Wagner").historia("Historia")
+				.universoId(universoSalvado.getId()).build();
 		superheroeRepositorio.save(superheroe);
 
 		// LLAMADA A MÉTODO A TESTEAR
@@ -154,10 +184,14 @@ class SuperheroeControladorITest {
 	@Test
 	void dadoSuperheroeActualizado_cuandoActualizarSuperheroe_devuelveSuperheroeActualizado() throws Exception {
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
-		Superheroe superheroeGuardado = Superheroe.builder().nombre("Marvel").historia("Historia").build();
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		Superheroe superheroeGuardado = Superheroe.builder().nombre("Wagner").historia("Historia")
+				.universoId(universoSalvado.getId()).build();
 		superheroeRepositorio.save(superheroeGuardado);
 
-		Superheroe superheroeActualizado = Superheroe.builder().nombre("Nuevo").historia("Nueva").build();
+		Superheroe superheroeActualizado = Superheroe.builder().nombre("Nuevo").historia("Nueva")
+				.universoId(universoSalvado.getId()).build();
 
 		// LLAMADA A MÉTODO A TESTEAR
 		ResultActions response = mockMvc
@@ -175,10 +209,14 @@ class SuperheroeControladorITest {
 	void dadoSuperheroeActualizado_cuandoActualizarSuperheroe_devuelveExcepcion() throws Exception {
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
 		Integer superheroeId = 1;
-		Superheroe superheroeGuardado = Superheroe.builder().nombre("Marvel").historia("Historia").build();
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		Superheroe superheroeGuardado = Superheroe.builder().nombre("Wagner").historia("Historia")
+				.universoId(universoSalvado.getId()).build();
 		superheroeRepositorio.save(superheroeGuardado);
 
-		Superheroe superheroeActualizado = Superheroe.builder().nombre("Nuevo").historia("Nueva").build();
+		Superheroe superheroeActualizado = Superheroe.builder().nombre("Nuevo").historia("Nueva")
+				.universoId(universoSalvado.getId()).build();
 
 		// LLAMADA A MÉTODO A TESTEAR
 		ResultActions response = mockMvc
@@ -193,7 +231,10 @@ class SuperheroeControladorITest {
 	@Test
 	void dadoSuperheroeId_cuandoEliminarSuperheroe_devuelve204() throws Exception {
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
-		Superheroe superheroe = Superheroe.builder().nombre("Marvel").historia("Historia").build();
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		Superheroe superheroe = Superheroe.builder().nombre("Wagner").historia("Historia")
+				.universoId(universoSalvado.getId()).build();
 		superheroeRepositorio.save(superheroe);
 
 		// LLAMADA A MÉTODO A TESTEAR
@@ -208,7 +249,10 @@ class SuperheroeControladorITest {
 	void dadoSuperheroeIdInvalido_cuandoEliminarSuperheroe_devuelve404() throws Exception {
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
 		Integer superheroeId = 1;
-		Superheroe superheroe = Superheroe.builder().nombre("Marvel").historia("Historia").build();
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		Superheroe superheroe = Superheroe.builder().nombre("Wagner").historia("Historia")
+				.universoId(universoSalvado.getId()).build();
 		superheroeRepositorio.save(superheroe);
 
 		// LLAMADA A MÉTODO A TESTEAR
@@ -222,7 +266,10 @@ class SuperheroeControladorITest {
 	@Test
 	void dadoSuperheroeId_cuandoMatarSuperheroe_devuelve200() throws Exception {
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
-		Superheroe superheroe = Superheroe.builder().nombre("Batman").historia("Historia").build();
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		Superheroe superheroe = Superheroe.builder().nombre("Wagner").historia("Historia")
+				.universoId(universoSalvado.getId()).build();
 		superheroeRepositorio.save(superheroe);
 		Integer superheroeId = superheroe.getId();
 
@@ -237,7 +284,10 @@ class SuperheroeControladorITest {
 	@Test
 	void dadoSuperheroeIdInvalido_cuandoMatarSuperheroe_devuelve404() throws Exception {
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
-		Superheroe superheroe = Superheroe.builder().nombre("Batman").historia("Historia").build();
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		Superheroe superheroe = Superheroe.builder().nombre("Wagner").historia("Historia")
+				.universoId(universoSalvado.getId()).build();
 		superheroeRepositorio.save(superheroe);
 		Integer superheroeId = superheroe.getId();
 
@@ -252,7 +302,10 @@ class SuperheroeControladorITest {
 	@Test
 	void dadoSuperheroeId_cuandoResucitarSuperheroe_devuelve200() throws Exception {
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
-		Superheroe superheroe = Superheroe.builder().nombre("Batman").estaVivo(false).historia("Historia").build();
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		Superheroe superheroe = Superheroe.builder().nombre("Wagner").estaVivo(false).historia("Historia")
+				.universoId(universoSalvado.getId()).build();
 		superheroeRepositorio.save(superheroe);
 		Integer superheroeId = superheroe.getId();
 
@@ -267,7 +320,10 @@ class SuperheroeControladorITest {
 	@Test
 	void dadoSuperheroeIdInvalido_cuandoResucitarSuperheroe_devuelve404() throws Exception {
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
-		Superheroe superheroe = Superheroe.builder().nombre("Batman").historia("Historia").build();
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		Superheroe superheroe = Superheroe.builder().nombre("Wagner").historia("Historia")
+				.universoId(universoSalvado.getId()).build();
 		superheroeRepositorio.save(superheroe);
 		Integer superheroeId = superheroe.getId();
 
@@ -282,7 +338,10 @@ class SuperheroeControladorITest {
 	@Test
 	void dadoSuperheroeId_cuandoMatarSuperheroeYaMuerto_devuelve406() throws Exception {
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
-		Superheroe superheroe = Superheroe.builder().nombre("Batman").estaVivo(false).historia("Historia").build();
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		Superheroe superheroe = Superheroe.builder().nombre("Wagner").estaVivo(false).historia("Historia")
+				.universoId(universoSalvado.getId()).build();
 		superheroeRepositorio.save(superheroe);
 		Integer superheroeId = superheroe.getId();
 
@@ -297,7 +356,10 @@ class SuperheroeControladorITest {
 	@Test
 	void dadoSuperheroeId_cuandoResucitarSuperheroeYaVivo_devuelve406() throws Exception {
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
-		Superheroe superheroe = Superheroe.builder().nombre("Batman").historia("Historia").build();
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		Superheroe superheroe = Superheroe.builder().nombre("Wagner").historia("Historia")
+				.universoId(universoSalvado.getId()).build();
 		superheroeRepositorio.save(superheroe);
 		Integer superheroeId = superheroe.getId();
 
