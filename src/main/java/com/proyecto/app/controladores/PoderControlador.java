@@ -5,9 +5,9 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
@@ -35,7 +35,7 @@ import com.proyecto.app.servicios.PoderServicioImpl;
 @RequestMapping("api/poderes")
 public class PoderControlador {
 
-	private static final Logger logger = LoggerFactory.getLogger(PoderControlador.class);
+	private static final Logger logger = LogManager.getLogger(PoderControlador.class);
 
 	@Autowired
 	private PoderServicioImpl servicio;

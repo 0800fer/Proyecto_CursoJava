@@ -17,11 +17,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.proyecto.app.entidades.Superheroe;
 import com.proyecto.app.repositorios.ISuperheroeRepositorio;
 
 @ExtendWith(MockitoExtension.class) // -> JUNIT 5
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("test")
 class SuperheroeServicioTest {
 
 	@InjectMocks
@@ -34,7 +40,8 @@ class SuperheroeServicioTest {
 
 	@BeforeEach
 	public void setup() {
-		superheroe = Superheroe.builder().id(1).nombre("Batman").historia("Descripcion de Batman").build();
+		superheroe = Superheroe.builder().id(1).nombre("Batman").historia("Descripcion de Batman").universoId(1)
+				.build();
 	}
 
 	@DisplayName("Test para obtener lista de todos los superheroes (Con valores)")
@@ -109,8 +116,6 @@ class SuperheroeServicioTest {
 		Integer superheroeIdParam = Integer.valueOf("1");
 
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
-		given(superheroeRepositorio.findByNombre(superheroe.getNombre())).willReturn(Optional.empty());
-
 		given(superheroeRepositorio.save(superheroe)).willReturn(superheroe);
 
 		// LLAMADA A MÉTODO A TESTEAR

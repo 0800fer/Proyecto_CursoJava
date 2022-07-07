@@ -26,6 +26,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proyecto.app.entidades.Poder;
 import com.proyecto.app.repositorios.IPoderRepositorio;
+import com.proyecto.app.repositorios.ISuperheroeRepositorio;
+import com.proyecto.app.repositorios.IUniversoRepositorio;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -38,10 +40,18 @@ class PoderControladorITest {
 	private IPoderRepositorio poderRepositorio;
 
 	@Autowired
+	private IUniversoRepositorio universoRepositorio;
+
+	@Autowired
+	private ISuperheroeRepositorio superheroeRepositorio;
+
+	@Autowired
 	private ObjectMapper objectMapper;
 
 	@BeforeEach
 	void setup() {
+		superheroeRepositorio.deleteAll();
+		universoRepositorio.deleteAll();
 		poderRepositorio.deleteAll();
 	}
 

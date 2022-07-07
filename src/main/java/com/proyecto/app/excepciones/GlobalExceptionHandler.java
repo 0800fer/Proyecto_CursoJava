@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import javax.validation.ConstraintViolationException;
+
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,10 +35,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	}
 
 	@ExceptionHandler
+	protected ResponseEntity<ErrorResponse> handleException(ConstraintViolationException exc) {
+		HttpStatus httpStatus = HttpStatus.NOT_ACCEPTABLE;
+		return buildResponseEntity(httpStatus, exc);
+	}
+
+	@ExceptionHandler
 	protected ResponseEntity<ErrorResponse> handleException(MethodArgumentTypeMismatchException exc) {
 		HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-		// Aplica cuando en el URL se envia un argumento invalido, por ejemplo String
-		// por Integer
 		return buildResponseEntity(httpStatus, new RuntimeException("Tipo de Argumento invalido"));
 	}
 

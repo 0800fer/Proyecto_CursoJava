@@ -11,7 +11,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,8 +44,8 @@ public class Poder {
 	@Size(max = 256)
 	private String descripcion;
 
+	@JsonIgnoreProperties
 	@ManyToMany(mappedBy = "poderes")
-	@JsonIgnore
 	private Set<Superheroe> superheroes;
 
 }

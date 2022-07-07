@@ -1,5 +1,6 @@
 package com.proyecto.app.entidades;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -18,19 +19,23 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.ColumnDefault;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * 
  * Definición de la entidad que representa un PODER
  * 
  */
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -59,13 +64,15 @@ public class Superheroe {
 	@Column(name = "universo_id", nullable = false)
 	private Integer universoId;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "universo_id", insertable = false, updatable = false)
+	@JsonProperty(access = Access.WRITE_ONLY)
 	private Universo universo;
 
 	@ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
 	@JoinTable(name = "heroes_poderes", joinColumns = @JoinColumn(name = "heroe_id"), inverseJoinColumns = @JoinColumn(name = "poder_id"))
-	@JsonBackReference
-	private Set<Poder> poderes;
+	@JsonIgnore
+	@Builder.Default
+	private Set<Poder> poderes = new HashSet<>();
 
 }

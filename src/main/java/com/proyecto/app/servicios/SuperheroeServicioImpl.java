@@ -1,13 +1,15 @@
 package com.proyecto.app.servicios;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
+import com.proyecto.app.entidades.Poder;
 import com.proyecto.app.entidades.Superheroe;
+import com.proyecto.app.entidades.SuperheroeDTO;
 import com.proyecto.app.repositorios.ISuperheroeRepositorio;
 
 /**
@@ -20,6 +22,9 @@ public class SuperheroeServicioImpl implements ISuperheroeServicio {
 
 	@Autowired
 	ISuperheroeRepositorio superheroeRepositorio;
+
+	@Autowired
+	IPoderServicio poderServicio;
 
 	@Override
 	public List<Superheroe> listarTodosLosSuperheroes() {
@@ -43,10 +48,6 @@ public class SuperheroeServicioImpl implements ISuperheroeServicio {
 
 	@Override
 	public Superheroe crearSuperheroe(Superheroe superheroe) {
-		Optional<Superheroe> superHeroeExistente = superheroeRepositorio.findByNombre(superheroe.getNombre());
-		if (superHeroeExistente.isPresent()) {
-			throw new DuplicateKeyException("Ya existe Universo con nombre: " + superHeroeExistente.get().getNombre());
-		}
 		return superheroeRepositorio.save(superheroe);
 	}
 
@@ -76,6 +77,34 @@ public class SuperheroeServicioImpl implements ISuperheroeServicio {
 		}
 		superheroe.setEstaVivo(true);
 		superheroeRepositorio.save(superheroe);
+	}
+
+	@Override
+	public SuperheroeDTO superHeroeMapperToDto(Superheroe superheroe) {
+
+		List<String> listaPoderes = new ArrayList<>();
+
+		for (Poder poder : superheroe.getPoderes()) {
+			listaPoderes.add(poder.getNombre());
+		}
+		return SuperheroeDTO.builder().id(superheroe.getId()).nombre(superheroe.getNombre())
+				.historia(superheroe.getHistoria()).universoId(superheroe.getUniversoId()).poderes(listaPoderes)
+				.build();
+	}
+
+	@Override
+	public Boolean validaPoderes(List<String> lista) {
+		int cantidadPoderesValidos = 0;
+		Boolean listaValida = true;
+		for (String id : lista) {
+			Optional<Poder> poderExiste = poderServicio.buscarPoderPorId(Integer.valueOf(id));
+			if (poderExiste.isPresent())
+				cantidadPoderesValidos++;
+			else
+				listaValida = false;
+		}
+
+		return (listaValida) && (cantidadPoderesValidos > 0);
 	}
 
 }
