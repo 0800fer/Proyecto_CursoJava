@@ -1,5 +1,8 @@
 package com.proyecto.app.entidades;
 
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -7,12 +10,15 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.ColumnDefault;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -56,9 +62,10 @@ public class Superheroe {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "universo_id", insertable = false, updatable = false)
 	private Universo universo;
-//
-//	@ManyToMany
-//	@JoinTable(name = "heroes_poderes", joinColumns = @JoinColumn(name = "heroe_id"), inverseJoinColumns = @JoinColumn(name = "poder_id"))
-//	Set<Poder> poderes;
+
+	@ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+	@JoinTable(name = "heroes_poderes", joinColumns = @JoinColumn(name = "heroe_id"), inverseJoinColumns = @JoinColumn(name = "poder_id"))
+	@JsonBackReference
+	private Set<Poder> poderes;
 
 }

@@ -1,5 +1,8 @@
 package com.proyecto.app.entidades;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +17,7 @@ public class SuperheroeDTO {
 	private String historia;
 	private Boolean estaVivo = true;
 	private String universo;
+	private Set<String> poderes = new HashSet<>();
 
 	public SuperheroeDTO(Superheroe superheroe) {
 		this.id = superheroe.getId();

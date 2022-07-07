@@ -32,7 +32,7 @@ class PoderRepositorioTest {
 	@Test
 	@DisplayName("Test para confirmar operatividad del repositorio con constructor lleno")
 	void testRepositorioConConstructorLleno() {
-		Poder poder = new Poder(1, "Electricidad", "Descripcion");
+		Poder poder = new Poder(1, "Electricidad", "Descripcion", null);
 		repo.save(poder);
 
 		Assertions.assertNotNull(repo.findAll());
