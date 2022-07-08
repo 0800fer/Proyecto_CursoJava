@@ -52,7 +52,7 @@ public class PoderControlador {
 	 */
 	@GetMapping()
 	public List<PoderDTO> listarPoderes() {
-		logger.debug("Obteniendo todos los poderes");
+		logger.info("Obteniendo todos los poderes");
 		return servicio.listarTodosLosPoderes().stream().map(poder -> modelMapper.map(poder, PoderDTO.class))
 				.collect(Collectors.toList());
 	}
@@ -66,7 +66,7 @@ public class PoderControlador {
 	 */
 	@PostMapping
 	public ResponseEntity<PoderDTO> crearPoder(@RequestBody PoderDTO poderDTO) {
-		logger.debug("Creando poder con data {}", poderDTO);
+		logger.info("Creando poder con data {}", poderDTO);
 		Optional<Poder> poderYaExiste = servicio.buscarPoderNombre(poderDTO.getNombre());
 		if (poderYaExiste.isPresent()) {
 			throw new DuplicateKeyException("Ya existe poder con nombre: " + poderDTO.getNombre());
@@ -88,7 +88,7 @@ public class PoderControlador {
 	 */
 	@GetMapping("/{id}")
 	public ResponseEntity<PoderDTO> buscarPoderPorId(@PathVariable(name = "id") Integer idPoder) {
-		logger.debug("Obteniendo poder con id {}", idPoder);
+		logger.info("Obteniendo poder con id {}", idPoder);
 
 		// Validacion
 		Optional<Poder> poder = servicio.buscarPoderPorId(idPoder);
@@ -112,7 +112,7 @@ public class PoderControlador {
 	public ResponseEntity<Poder> actualizarPoder(@PathVariable(value = "id") Integer idPoder,
 			@RequestBody PoderDTO poderDTO) {
 
-		logger.debug("Actualizando poder con id {} y data {}", idPoder, poderDTO);
+		logger.info("Actualizando poder con id {} y data {}", idPoder, poderDTO);
 
 		return servicio.buscarPoderPorId(idPoder).map(poderGuardado -> {
 
@@ -137,7 +137,7 @@ public class PoderControlador {
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	public void eliminarPelicula(@PathVariable(value = "id") Integer idPoder) {
 
-		logger.debug("Eliminando poder con id {}", idPoder);
+		logger.info("Eliminando poder con id {}", idPoder);
 
 		// Validacion
 		Optional<Poder> poder = servicio.buscarPoderPorId(idPoder);

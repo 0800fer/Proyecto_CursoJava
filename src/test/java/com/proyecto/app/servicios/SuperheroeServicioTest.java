@@ -109,23 +109,6 @@ class SuperheroeServicioTest {
 		assertThat(superheroeActual).isNull();
 	}
 
-	@DisplayName("Test para crear un Superheroe")
-	@Test
-	void crearSuperheroeTest() throws Exception {
-		// DEFINICIÓN DE VARIABLES DE ENTRADA Y RESULTADOS
-		Integer superheroeIdParam = Integer.valueOf("1");
-
-		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
-		given(superheroeRepositorio.save(superheroe)).willReturn(superheroe);
-
-		// LLAMADA A MÉTODO A TESTEAR
-		Superheroe nuevoSuperheroe = superheroeServicio.crearSuperheroe(superheroe);
-
-		// COMPROBACIONES DEL RESULTADO ESPERADO
-		assertThat(nuevoSuperheroe).isNotNull();
-		assertThat(nuevoSuperheroe.getId()).isEqualTo(superheroeIdParam);
-	}
-
 	@DisplayName("Test para actualizar un Superheroe")
 	@Test
 	void actualizarSuperheroeTest() {

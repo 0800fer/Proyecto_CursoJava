@@ -22,7 +22,7 @@ public interface ISuperheroeServicio {
 
 	Optional<Superheroe> buscarSuperheroePorNombre(String nombre);
 
-	Superheroe crearSuperheroe(Superheroe superheroe);
+	Superheroe crearSuperheroe(Superheroe superheroe, List<Integer> listaPoderes);
 
 	Superheroe actualizarSuperheroe(Superheroe superheroe);
 
@@ -34,5 +34,5 @@ public interface ISuperheroeServicio {
 
 	SuperheroeDTO superHeroeMapperToDto(Superheroe superheroe);
 
-	Boolean validaPoderes(List<String> lista);
+	Boolean validaPoderes(List<Integer> lista);
 }

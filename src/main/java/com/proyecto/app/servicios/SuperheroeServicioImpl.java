@@ -47,8 +47,21 @@ public class SuperheroeServicioImpl implements ISuperheroeServicio {
 	}
 
 	@Override
-	public Superheroe crearSuperheroe(Superheroe superheroe) {
-		return superheroeRepositorio.save(superheroe);
+	public Superheroe crearSuperheroe(Superheroe superheroe, List<Integer> listaPoderes) {
+
+		// Crea Superheroe
+		var superHeroeNuevo = Superheroe.builder().id(superheroe.getId()).nombre(superheroe.getNombre())
+				.historia(superheroe.getHistoria()).universoId(superheroe.getUniversoId()).build();
+		var superheroeGuardado = superheroeRepositorio.save(superHeroeNuevo);
+
+		// Agrega Poderes
+		for (Integer id : listaPoderes) {
+			var poder = poderServicio.buscarPoderPorId(id);
+			if (poder.isPresent()) {
+				superheroeGuardado.getPoderes().add(poder.get());
+			}
+		}
+		return superheroeRepositorio.save(superheroeGuardado);
 	}
 
 	@Override
@@ -93,18 +106,41 @@ public class SuperheroeServicioImpl implements ISuperheroeServicio {
 	}
 
 	@Override
-	public Boolean validaPoderes(List<String> lista) {
+	public Boolean validaPoderes(List<Integer> lista) {
 		int cantidadPoderesValidos = 0;
 		Boolean listaValida = true;
-		for (String id : lista) {
-			Optional<Poder> poderExiste = poderServicio.buscarPoderPorId(Integer.valueOf(id));
+		for (Integer id : lista) {
+			Optional<Poder> poderExiste = poderServicio.buscarPoderPorId(id);
 			if (poderExiste.isPresent())
 				cantidadPoderesValidos++;
 			else
 				listaValida = false;
 		}
-
 		return (listaValida) && (cantidadPoderesValidos > 0);
 	}
 
+	public void agregaPoderes(Superheroe superheroe, List<Integer> listaIdPoderes) {
+		// Agrega Poderes
+		for (Integer id : listaIdPoderes) {
+			var poder = poderServicio.buscarPoderPorId(id);
+			if (poder.isPresent()) {
+				superheroe.getPoderes().add(poder.get());
+			}
+		}
+		superheroeRepositorio.save(superheroe);
+	}
+
+	public void eliminarPoderes(Superheroe superheroe, List<Integer> listaIdPoderes) {
+		// Elimina Poderes
+		for (Integer id : listaIdPoderes) {
+			var poder = poderServicio.buscarPoderPorId(id);
+			if (poder.isPresent()) {
+				superheroe.getPoderes().remove(poder.get());
+			}
+		}
+		if (superheroe.getPoderes().isEmpty()) {
+			throw new IllegalArgumentException("El superheroe no puede quedarse sin poderes");
+		}
+		superheroeRepositorio.save(superheroe);
+	}
 }

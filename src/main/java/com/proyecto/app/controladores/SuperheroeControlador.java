@@ -62,7 +62,7 @@ public class SuperheroeControlador {
 	 */
 	@GetMapping()
 	public List<SuperheroeDTO> listarSuperheroes() {
-		logger.debug("Obteniendo todos los superheroees");
+		logger.info("Obteniendo todos los superheroees");
 		return servicio.listarTodosLosSuperheroes().stream()
 				.map(superheroe -> servicio.superHeroeMapperToDto(superheroe)).collect(Collectors.toList());
 	}
@@ -76,7 +76,7 @@ public class SuperheroeControlador {
 	 */
 	@GetMapping("/buscar")
 	public List<SuperheroeDTO> listarSuperheroesContienenEnNombre(@RequestParam String nombre) {
-		logger.debug("Obteniendo superheroees que contienen ...");
+		logger.info("Obteniendo superheroees que contienen ...");
 		return servicio.listarSuperheroesContienenEnNombre(nombre).stream()
 				.map(superheroe -> servicio.superHeroeMapperToDto(superheroe)).collect(Collectors.toList());
 	}
@@ -90,7 +90,7 @@ public class SuperheroeControlador {
 	 */
 	@PostMapping()
 	public ResponseEntity<SuperheroeDTO> crearSuperheroe(@RequestBody SuperheroeDTO superheroeDTO) {
-		logger.debug("Creando superheroe con data {}", superheroeDTO);
+		logger.info("Creando superheroe con data {}", superheroeDTO);
 		Optional<Superheroe> superheroeYaExiste = servicio.buscarSuperheroePorNombre(superheroeDTO.getNombre());
 		if (superheroeYaExiste.isPresent()) {
 			throw new DuplicateKeyException("Ya existe superheroe con nombre: " + superheroeDTO.getNombre());
@@ -103,7 +103,9 @@ public class SuperheroeControlador {
 		}
 
 		// Valida Poderes
-		if (Boolean.FALSE.equals(servicio.validaPoderes(superheroeDTO.getPoderes()))) {
+		var listaPoderes = superheroeDTO.getPoderes();
+		var listaIdPoderes = listaPoderes.stream().map(Integer::parseInt).collect(Collectors.toList());
+		if (Boolean.FALSE.equals(servicio.validaPoderes(listaIdPoderes))) {
 			throw new IllegalArgumentException("Poderes no válidos");
 		}
 
@@ -111,7 +113,9 @@ public class SuperheroeControlador {
 		Superheroe superheroe = modelMapper.map(superheroeDTO, Superheroe.class);
 
 		// entidad a DTO
-		SuperheroeDTO superheroeResponse = servicio.superHeroeMapperToDto(servicio.crearSuperheroe(superheroe));
+		SuperheroeDTO superheroeResponse = servicio
+				.superHeroeMapperToDto(servicio.crearSuperheroe(superheroe, listaIdPoderes));
+
 		return new ResponseEntity<>(superheroeResponse, HttpStatus.CREATED);
 	}
 
@@ -125,7 +129,7 @@ public class SuperheroeControlador {
 	 */
 	@GetMapping("/{id}")
 	public ResponseEntity<SuperheroeDTO> buscarSuperheroePorId(@PathVariable(name = "id") Integer idSuperheroe) {
-		logger.debug("Obteniendo superheroe con id {}", idSuperheroe);
+		logger.info("Obteniendo superheroe con id {}", idSuperheroe);
 
 		// Validacion
 		Optional<Superheroe> superheroe = servicio.buscarSuperheroePorId(idSuperheroe);
@@ -134,6 +138,7 @@ public class SuperheroeControlador {
 		}
 		// entidad a DTO
 		SuperheroeDTO superheroeDTO = servicio.superHeroeMapperToDto(superheroe.get());
+
 		return ResponseEntity.ok().body(superheroeDTO);
 	}
 
@@ -146,10 +151,12 @@ public class SuperheroeControlador {
 	 * 
 	 */
 	@PutMapping("{id}")
-	public ResponseEntity<Superheroe> actualizarSuperheroe(@PathVariable(value = "id") Integer idSuperheroe,
-			@RequestBody Superheroe superheroe) {
+	public ResponseEntity<SuperheroeDTO> actualizarSuperheroe(@PathVariable(value = "id") Integer idSuperheroe,
+			@RequestBody SuperheroeDTO superheroeDTO) {
 
-		logger.debug("Actualizando superheroe con id {} y data {}", idSuperheroe, superheroe);
+		logger.info("Actualizando superheroe con id {} y data {}", idSuperheroe, superheroeDTO);
+
+		var superheroe = modelMapper.map(superheroeDTO, Superheroe.class);
 
 		return servicio.buscarSuperheroePorId(idSuperheroe).map(superheroeGuardado -> {
 
@@ -159,7 +166,7 @@ public class SuperheroeControlador {
 
 			Superheroe superheroeActualizado = servicio.actualizarSuperheroe(superheroeGuardado);
 
-			return new ResponseEntity<>(superheroeActualizado, HttpStatus.OK);
+			return new ResponseEntity<>(servicio.superHeroeMapperToDto(superheroeActualizado), HttpStatus.OK);
 
 		}).orElseGet(() -> ResponseEntity.notFound().build());
 	}
@@ -176,7 +183,7 @@ public class SuperheroeControlador {
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	public void eliminarSuperheroe(@PathVariable(value = "id") Integer idSuperheroe) {
 
-		logger.debug("Eliminando superheroe con id {}", idSuperheroe);
+		logger.info("Eliminando superheroe con id {}", idSuperheroe);
 
 		// Validacion
 		Optional<Superheroe> superheroe = servicio.buscarSuperheroePorId(idSuperheroe);
@@ -198,7 +205,7 @@ public class SuperheroeControlador {
 	@ResponseStatus(code = HttpStatus.OK)
 	public ResponseEntity<String> matarSuperheroe(@PathVariable(value = "id") Integer idSuperheroe) {
 
-		logger.debug("Matando al superheroe con id {}", idSuperheroe);
+		logger.info("Matando al superheroe con id {}", idSuperheroe);
 
 		// Validacion
 		Optional<Superheroe> superheroe = servicio.buscarSuperheroePorId(idSuperheroe);
@@ -221,7 +228,7 @@ public class SuperheroeControlador {
 	@ResponseStatus(code = HttpStatus.OK)
 	public ResponseEntity<String> resucitarSuperheroe(@PathVariable(value = "id") Integer idSuperheroe) {
 
-		logger.debug("Resucitando al superheroe con id {}", idSuperheroe);
+		logger.info("Resucitando al superheroe con id {}", idSuperheroe);
 
 		// Validacion
 		Optional<Superheroe> superheroe = servicio.buscarSuperheroePorId(idSuperheroe);
@@ -234,18 +241,18 @@ public class SuperheroeControlador {
 
 	/**
 	 * 
-	 * Endpoint GET /api/superheroees/{id}/poderes Lista los poderes de un
+	 * Endpoint GET /api/superheroees/{id}/listar-poderes Lista los poderes de un
 	 * Superheroe
 	 * 
 	 * @return 200
 	 * @exception not Found
 	 * 
 	 */
-	@GetMapping(value = "/{id}/poderes")
+	@GetMapping(value = "/{id}/listar-poderes")
 	@ResponseStatus(code = HttpStatus.OK)
 	public Set<Poder> listarPoderesDeSuperheroe(@PathVariable(value = "id") Integer idSuperheroe) {
 
-		logger.debug("Listando poderes de Superheroe con id {}", idSuperheroe);
+		logger.info("Listando poderes de Superheroe con id {}", idSuperheroe);
 
 		// Validacion
 		Optional<Superheroe> superheroe = servicio.buscarSuperheroePorId(idSuperheroe);
@@ -254,6 +261,67 @@ public class SuperheroeControlador {
 		}
 
 		return superheroe.get().getPoderes();
+	}
+
+	/**
+	 * 
+	 * Endpoint GET /api/superheroees/{id}/agregar-poderes Agrega poderes a un
+	 * Superheroe
+	 * 
+	 * @return 200
+	 * @exception not Found
+	 * 
+	 */
+	@PostMapping(value = "/{id}/agregar-poderes")
+	@ResponseStatus(code = HttpStatus.OK)
+	public ResponseEntity<String> agregarPoderesASuperheroe(@PathVariable(value = "id") Integer idSuperheroe,
+			@RequestBody List<Integer> listaIdPoderes) {
+
+		logger.info("Agregando poderes a Superheroe con id {}", idSuperheroe);
+
+		// Validacion
+		Optional<Superheroe> superheroe = servicio.buscarSuperheroePorId(idSuperheroe);
+		if (superheroe.isEmpty()) {
+			throw new NoSuchElementException(MENSJENOID + idSuperheroe);
+		}
+
+		if (Boolean.FALSE.equals(servicio.validaPoderes(listaIdPoderes))) {
+			throw new IllegalArgumentException("Poderes no válidos");
+		}
+
+		servicio.agregaPoderes(superheroe.get(), listaIdPoderes);
+
+		return ResponseEntity.ok().body("Poderes agregados satisfactoriamente!");
+	}
+
+	/**
+	 * 
+	 * Endpoint GET /api/superheroees/{id}/poderes Elimina poderes a un Superheroe
+	 * 
+	 * @return 200
+	 * @exception not Found
+	 * 
+	 */
+	@PostMapping(value = "/{id}/eliminar-poderes")
+	@ResponseStatus(code = HttpStatus.OK)
+	public ResponseEntity<String> eliminarPoderesASuperheroe(@PathVariable(value = "id") Integer idSuperheroe,
+			@RequestBody List<Integer> listaIdPoderes) {
+
+		logger.info("Eliminando poderes a Superheroe con id {}", idSuperheroe);
+
+		// Validacion
+		Optional<Superheroe> superheroe = servicio.buscarSuperheroePorId(idSuperheroe);
+		if (superheroe.isEmpty()) {
+			throw new NoSuchElementException(MENSJENOID + idSuperheroe);
+		}
+
+		if (Boolean.FALSE.equals(servicio.validaPoderes(listaIdPoderes))) {
+			throw new IllegalArgumentException("Lista de Poderes no válidos");
+		}
+
+		servicio.eliminarPoderes(superheroe.get(), listaIdPoderes);
+
+		return ResponseEntity.ok().body("Poderes eliminados satisfactoriamente!");
 	}
 
 }

@@ -1,29 +1,28 @@
 package com.proyecto.app.entidades;
 
-import java.util.Set;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * 
  * Definición de la entidad que representa un PODER
  * 
  */
-@Data
+@Getter
+@Setter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -43,9 +42,5 @@ public class Poder {
 	@Column(name = "descripcion")
 	@Size(max = 256)
 	private String descripcion;
-
-	@JsonIgnoreProperties
-	@ManyToMany(mappedBy = "poderes")
-	private Set<Superheroe> superheroes;
 
 }

@@ -69,7 +69,7 @@ public class Superheroe {
 	@JsonProperty(access = Access.WRITE_ONLY)
 	private Universo universo;
 
-	@ManyToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+	@ManyToMany(cascade = { CascadeType.ALL })
 	@JoinTable(name = "heroes_poderes", joinColumns = @JoinColumn(name = "heroe_id"), inverseJoinColumns = @JoinColumn(name = "poder_id"))
 	@JsonIgnore
 	@Builder.Default

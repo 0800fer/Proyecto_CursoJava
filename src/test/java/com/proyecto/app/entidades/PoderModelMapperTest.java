@@ -25,7 +25,7 @@ class PoderModelMapperTest {
 	@Test
 	@DisplayName("Test mapper entidad a DTO")
 	void entidadToDtoTest() {
-		Poder poder = new Poder(123, "Volar", "Descripcion", null);
+		Poder poder = new Poder(123, "Volar", "Descripcion");
 
 		PoderDTO dto = modelMapper.map(poder, PoderDTO.class);
 

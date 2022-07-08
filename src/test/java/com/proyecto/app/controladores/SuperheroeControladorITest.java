@@ -34,6 +34,7 @@ import com.proyecto.app.entidades.Universo;
 import com.proyecto.app.repositorios.IPoderRepositorio;
 import com.proyecto.app.repositorios.ISuperheroeRepositorio;
 import com.proyecto.app.repositorios.IUniversoRepositorio;
+import com.proyecto.app.servicios.SuperheroeServicioImpl;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -50,6 +51,9 @@ class SuperheroeControladorITest {
 
 	@Autowired
 	private IPoderRepositorio poderRepositorio;
+
+	@Autowired
+	private SuperheroeServicioImpl superheroeServicio;
 
 	@Autowired
 	private ModelMapper modelMapper;
@@ -464,51 +468,110 @@ class SuperheroeControladorITest {
 		response.andExpect(status().isNotAcceptable()).andDo(print());
 	}
 
-	@DisplayName("Test para el endpoint GET /api/superheroes/{id}/poderes Escenario positivo")
+	@DisplayName("Test para el endpoint GET /api/superheroes/{id}/listar-poderes Escenario positivo")
 	@Test
 	void dadoSuperheroeId_cuandoListarPoderes_devuelveLista() throws Exception {
 		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
 		Poder poderSalvado = poderRepositorio.save(Poder.builder().nombre("Veloz").descripcion("Descripcion").build());
-		Set<Poder> poderSet = new HashSet<>();
-		List<String> listaPoderesIds = new ArrayList<>();
-		listaPoderesIds.add(poderSalvado.getId().toString());
-		poderSet.add(poderSalvado);
+		List<Integer> listaPoderesIds = new ArrayList<>();
+		listaPoderesIds.add(poderSalvado.getId());
 		Universo universoSalvado = universoRepositorio
 				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
 		SuperheroeDTO superheroeDTO = SuperheroeDTO.builder().nombre("Wagner").historia("Historia")
-				.universoId(universoSalvado.getId()).poderes(listaPoderesIds).build();
-		Superheroe superheroeSalvado = superheroeRepositorio.save(modelMapper.map(superheroeDTO, Superheroe.class));
+				.universoId(universoSalvado.getId()).build();
+		Superheroe superheroeSalvado = superheroeServicio
+				.crearSuperheroe(modelMapper.map(superheroeDTO, Superheroe.class), listaPoderesIds);
 
 		Integer superheroeId = superheroeSalvado.getId();
 
 		// LLAMADA A MÉTODO A TESTEAR
-		ResultActions response = mockMvc.perform(get(baseUrl + "/{id}/poderes", superheroeId));
+		ResultActions response = mockMvc.perform(get(baseUrl + "/{id}/listar-poderes", superheroeId));
 
 		// COMPROBACIONES DEL RESULTADO ESPERADO
 		response.andExpect(status().isOk()).andDo(print()).andExpect(jsonPath("$.size()", is(listaPoderesIds.size())));
 	}
 
-	@DisplayName("Test para el endpoint GET /api/superheroes/{id}/poderes Escenario Negativo")
+	@DisplayName("Test para el endpoint GET /api/superheroes/{id}/listar-poderes Escenario Negativo")
 	@Test
 	void dadoSuperheroeIdInvalido_cuandoListarPoderes_arrojaExcepcion() throws Exception {
-		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
-//		Poder poderSalvado = poderRepositorio.save(Poder.builder().nombre("Veloz").descripcion("Descripcion").build());
-//		Set<Poder> poderSet = new HashSet<>();
-//		List<String> listaPoderesIds = new ArrayList<>();
-//		listaPoderesIds.add(poderSalvado.getId().toString());
-//		poderSet.add(poderSalvado);
-//		Universo universoSalvado = universoRepositorio
-//				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
-//		SuperheroeDTO superheroeDTO = SuperheroeDTO.builder().nombre("Wagner").historia("Historia")
-//				.universoId(universoSalvado.getId()).poderes(listaPoderesIds).build();
-//		Superheroe superheroeSalvado = superheroeRepositorio.save(modelMapper.map(superheroeDTO, Superheroe.class));
-//
-//		Integer superheroeId = superheroeSalvado.getId();
 
 		// LLAMADA A MÉTODO A TESTEAR
 		ResultActions response = mockMvc.perform(get(baseUrl + "/{id}/poderes", 0));
 
 		// COMPROBACIONES DEL RESULTADO ESPERADO
 		response.andExpect(status().isNotFound()).andDo(print());
+	}
+
+	@DisplayName("Test para el endpoint POST /api/superheroes/{id}/agregar-poderes Escenario positivo")
+	@Test
+	void dadoSuperheroeId_cuandoAgregarPoderes_devuelveOk() throws Exception {
+		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
+		Poder poderSalvado = poderRepositorio.save(Poder.builder().nombre("Veloz").descripcion("Descripcion").build());
+		List<Integer> listaPoderesIds = new ArrayList<>();
+		listaPoderesIds.add(poderSalvado.getId());
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		SuperheroeDTO superheroeDTO = SuperheroeDTO.builder().nombre("Wagner").historia("Historia")
+				.universoId(universoSalvado.getId()).build();
+		Superheroe superheroeSalvado = superheroeServicio
+				.crearSuperheroe(modelMapper.map(superheroeDTO, Superheroe.class), listaPoderesIds);
+		Integer superheroeId = superheroeSalvado.getId();
+
+		// LLAMADA A MÉTODO A TESTEAR
+		ResultActions response = mockMvc.perform(post(baseUrl + "/{id}/agregar-poderes", superheroeId)
+				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(listaPoderesIds)));
+
+		// COMPROBACIONES DEL RESULTADO ESPERADO
+		response.andExpect(status().isOk()).andDo(print());
+	}
+
+	@DisplayName("Test para el endpoint POST /api/superheroes/{id}/eliminar-poderes Escenario Positivo")
+	@Test
+	void dadoSuperheroeId_cuandoEliminarPoderes_devuelveOk() throws Exception {
+		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
+		Poder poderSalvado1 = poderRepositorio.save(Poder.builder().nombre("Veloz").descripcion("Descripcion").build());
+		Poder poderSalvado2 = poderRepositorio
+				.save(Poder.builder().nombre("Invisible").descripcion("Descripcion").build());
+		List<Integer> listaPoderesIds = new ArrayList<>();
+		listaPoderesIds.add(poderSalvado1.getId());
+		listaPoderesIds.add(poderSalvado2.getId());
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		SuperheroeDTO superheroeDTO = SuperheroeDTO.builder().nombre("Wagner").historia("Historia")
+				.universoId(universoSalvado.getId()).build();
+		Superheroe superheroeSalvado = superheroeServicio
+				.crearSuperheroe(modelMapper.map(superheroeDTO, Superheroe.class), listaPoderesIds);
+		Integer superheroeId = superheroeSalvado.getId();
+
+		listaPoderesIds.remove(poderSalvado1.getId());
+		// LLAMADA A MÉTODO A TESTEAR
+		ResultActions response = mockMvc.perform(post(baseUrl + "/{id}/eliminar-poderes", superheroeId)
+				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(listaPoderesIds)));
+
+		// COMPROBACIONES DEL RESULTADO ESPERADO
+		response.andExpect(status().isOk()).andDo(print());
+	}
+
+	@DisplayName("Test para el endpoint POST /api/superheroes/{id}/eliminar-poderes (Sin poderes) Escenario Negativo")
+	@Test
+	void dadoSuperheroeId_cuandoEliminarPoderes_devuelve406() throws Exception {
+		// COMPORTAMIENTO ESPERADO DEL CUERPO DEL MÉTODO
+		Poder poderSalvado = poderRepositorio.save(Poder.builder().nombre("Veloz").descripcion("Descripcion").build());
+		List<Integer> listaPoderesIds = new ArrayList<>();
+		listaPoderesIds.add(poderSalvado.getId());
+		Universo universoSalvado = universoRepositorio
+				.save(Universo.builder().nombre("Wagner1").descripcion("Descripcion").build());
+		SuperheroeDTO superheroeDTO = SuperheroeDTO.builder().nombre("Wagner").historia("Historia")
+				.universoId(universoSalvado.getId()).build();
+		Superheroe superheroeSalvado = superheroeServicio
+				.crearSuperheroe(modelMapper.map(superheroeDTO, Superheroe.class), listaPoderesIds);
+		Integer superheroeId = superheroeSalvado.getId();
+
+		// LLAMADA A MÉTODO A TESTEAR
+		ResultActions response = mockMvc.perform(post(baseUrl + "/{id}/eliminar-poderes", superheroeId)
+				.contentType(MediaType.APPLICATION_JSON).content(objectMapper.writeValueAsString(listaPoderesIds)));
+
+		// COMPROBACIONES DEL RESULTADO ESPERADO
+		response.andExpect(status().isNotAcceptable()).andDo(print());
 	}
 }
