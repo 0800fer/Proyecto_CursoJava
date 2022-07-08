@@ -52,7 +52,7 @@ public class UniversoControlador {
 	 */
 	@GetMapping()
 	public List<UniversoDTO> listarUniversoes() {
-		logger.debug("Obteniendo todos los universoes");
+		logger.info("Obteniendo todos los universoes");
 		return servicio.listarTodosLosUniversos().stream().map(universo -> modelMapper.map(universo, UniversoDTO.class))
 				.collect(Collectors.toList());
 	}
@@ -66,7 +66,7 @@ public class UniversoControlador {
 	 */
 	@PostMapping
 	public ResponseEntity<UniversoDTO> crearUniverso(@RequestBody UniversoDTO universoDTO) {
-		logger.debug("Creando universo con data {}", universoDTO);
+		logger.info("Creando universo con data {}", universoDTO);
 		Optional<Universo> universoYaExiste = servicio.buscarUniversoNombre(universoDTO.getNombre());
 		if (universoYaExiste.isPresent()) {
 			throw new DuplicateKeyException("Ya existe universo con nombre: " + universoDTO.getNombre());
@@ -88,7 +88,7 @@ public class UniversoControlador {
 	 */
 	@GetMapping("/{id}")
 	public ResponseEntity<UniversoDTO> buscarUniversoPorId(@PathVariable(name = "id") Integer idUniverso) {
-		logger.debug("Obteniendo universo con id {}", idUniverso);
+		logger.info("Obteniendo universo con id {}", idUniverso);
 
 		// Validacion
 		Optional<Universo> universo = servicio.buscarUniversoPorId(idUniverso);
@@ -112,7 +112,7 @@ public class UniversoControlador {
 	public ResponseEntity<Universo> actualizarUniverso(@PathVariable(value = "id") Integer idUniverso,
 			@RequestBody UniversoDTO universoDTO) {
 
-		logger.debug("Actualizando universo con id {} y data {}", idUniverso, universoDTO);
+		logger.info("Actualizando universo con id {} y data {}", idUniverso, universoDTO);
 
 		return servicio.buscarUniversoPorId(idUniverso).map(universoGuardado -> {
 
@@ -137,7 +137,7 @@ public class UniversoControlador {
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	public void eliminarPelicula(@PathVariable(value = "id") Integer idUniverso) {
 
-		logger.debug("Eliminando universo con id {}", idUniverso);
+		logger.info("Eliminando universo con id {}", idUniverso);
 
 		// Validacion
 		Optional<Universo> universo = servicio.buscarUniversoPorId(idUniverso);

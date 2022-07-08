@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.proyecto.app.entidades.Superheroe;
+import com.proyecto.app.entidades.SuperheroeDTO;
 
 /**
  * 
@@ -21,7 +22,7 @@ public interface ISuperheroeServicio {
 
 	Optional<Superheroe> buscarSuperheroePorNombre(String nombre);
 
-	Superheroe crearSuperheroe(Superheroe superheroe);
+	Superheroe crearSuperheroe(Superheroe superheroe, List<Integer> listaPoderes);
 
 	Superheroe actualizarSuperheroe(Superheroe superheroe);
 
@@ -30,4 +31,8 @@ public interface ISuperheroeServicio {
 	void matarSuperheroe(Superheroe superheroe);
 
 	void resucitarSuperheroe(Superheroe superheroe);
+
+	SuperheroeDTO superHeroeMapperToDto(Superheroe superheroe);
+
+	Boolean validaPoderes(List<Integer> lista);
 }

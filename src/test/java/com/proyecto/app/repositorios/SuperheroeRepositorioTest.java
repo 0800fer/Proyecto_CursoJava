@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.proyecto.app.entidades.Superheroe;
 
@@ -16,23 +17,15 @@ import com.proyecto.app.entidades.Superheroe;
  */
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("test")
 class SuperheroeRepositorioTest {
 	@Autowired
 	ISuperheroeRepositorio repo;
 
 	@Test
-	@DisplayName("Test para confirmar operatividad del repositorio con constructor vacio")
-	void testRepositorioConConstructorVacio() {
-		Superheroe superheroe = new Superheroe();
-		repo.save(superheroe);
-
-		Assertions.assertNotNull(superheroe.getId());
-	}
-
-	@Test
 	@DisplayName("Test para confirmar operatividad del repositorio con constructor lleno")
 	void testRepositorioConConstructorLleno() {
-		Superheroe superheroe = new Superheroe(1, "Batman", "Descripcion", true);
+		Superheroe superheroe = Superheroe.builder().nombre("Robin").universoId(1).build();
 		repo.save(superheroe);
 
 		Assertions.assertNotNull(repo.findAll());

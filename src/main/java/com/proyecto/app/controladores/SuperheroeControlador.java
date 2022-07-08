@@ -3,6 +3,7 @@ package com.proyecto.app.controladores;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -23,9 +24,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.proyecto.app.entidades.Poder;
 import com.proyecto.app.entidades.Superheroe;
 import com.proyecto.app.entidades.SuperheroeDTO;
+import com.proyecto.app.entidades.Universo;
 import com.proyecto.app.servicios.SuperheroeServicioImpl;
+import com.proyecto.app.servicios.UniversoServicioImpl;
 
 /**
  * 
@@ -38,8 +42,13 @@ public class SuperheroeControlador {
 
 	private static final Logger logger = LoggerFactory.getLogger(SuperheroeControlador.class);
 
+	private static final String MENSJENOID = "No existe superheroe con id: ";
+
 	@Autowired
 	private SuperheroeServicioImpl servicio;
+
+	@Autowired
+	private UniversoServicioImpl universoServicio;
 
 	@Autowired
 	private ModelMapper modelMapper;
@@ -53,9 +62,9 @@ public class SuperheroeControlador {
 	 */
 	@GetMapping()
 	public List<SuperheroeDTO> listarSuperheroes() {
-		logger.debug("Obteniendo todos los superheroees");
+		logger.info("Obteniendo todos los superheroees");
 		return servicio.listarTodosLosSuperheroes().stream()
-				.map(superheroe -> modelMapper.map(superheroe, SuperheroeDTO.class)).collect(Collectors.toList());
+				.map(superheroe -> servicio.superHeroeMapperToDto(superheroe)).collect(Collectors.toList());
 	}
 
 	/**
@@ -67,9 +76,9 @@ public class SuperheroeControlador {
 	 */
 	@GetMapping("/buscar")
 	public List<SuperheroeDTO> listarSuperheroesContienenEnNombre(@RequestParam String nombre) {
-		logger.debug("Obteniendo superheroees que contienen ...");
+		logger.info("Obteniendo superheroees que contienen ...");
 		return servicio.listarSuperheroesContienenEnNombre(nombre).stream()
-				.map(superheroe -> modelMapper.map(superheroe, SuperheroeDTO.class)).collect(Collectors.toList());
+				.map(superheroe -> servicio.superHeroeMapperToDto(superheroe)).collect(Collectors.toList());
 	}
 
 	/**
@@ -81,15 +90,32 @@ public class SuperheroeControlador {
 	 */
 	@PostMapping()
 	public ResponseEntity<SuperheroeDTO> crearSuperheroe(@RequestBody SuperheroeDTO superheroeDTO) {
-		logger.debug("Creando superheroe con data {}", superheroeDTO);
+		logger.info("Creando superheroe con data {}", superheroeDTO);
 		Optional<Superheroe> superheroeYaExiste = servicio.buscarSuperheroePorNombre(superheroeDTO.getNombre());
 		if (superheroeYaExiste.isPresent()) {
 			throw new DuplicateKeyException("Ya existe superheroe con nombre: " + superheroeDTO.getNombre());
 		}
+
+		// Valida Universo
+		Optional<Universo> universoExiste = universoServicio.buscarUniversoPorId(superheroeDTO.getUniversoId());
+		if (universoExiste.isEmpty()) {
+			throw new IllegalArgumentException("No existe Universo con id: " + superheroeDTO.getUniversoId());
+		}
+
+		// Valida Poderes
+		var listaPoderes = superheroeDTO.getPoderes();
+		var listaIdPoderes = listaPoderes.stream().map(Integer::parseInt).collect(Collectors.toList());
+		if (Boolean.FALSE.equals(servicio.validaPoderes(listaIdPoderes))) {
+			throw new IllegalArgumentException("Poderes no válidos");
+		}
+
 		// DTO a entidad
-		Superheroe superheroe = servicio.crearSuperheroe(modelMapper.map(superheroeDTO, Superheroe.class));
+		Superheroe superheroe = modelMapper.map(superheroeDTO, Superheroe.class);
+
 		// entidad a DTO
-		SuperheroeDTO superheroeResponse = modelMapper.map(superheroe, SuperheroeDTO.class);
+		SuperheroeDTO superheroeResponse = servicio
+				.superHeroeMapperToDto(servicio.crearSuperheroe(superheroe, listaIdPoderes));
+
 		return new ResponseEntity<>(superheroeResponse, HttpStatus.CREATED);
 	}
 
@@ -103,15 +129,16 @@ public class SuperheroeControlador {
 	 */
 	@GetMapping("/{id}")
 	public ResponseEntity<SuperheroeDTO> buscarSuperheroePorId(@PathVariable(name = "id") Integer idSuperheroe) {
-		logger.debug("Obteniendo superheroe con id {}", idSuperheroe);
+		logger.info("Obteniendo superheroe con id {}", idSuperheroe);
 
 		// Validacion
 		Optional<Superheroe> superheroe = servicio.buscarSuperheroePorId(idSuperheroe);
 		if (superheroe.isEmpty()) {
-			throw new NoSuchElementException("No existe superheroe con id: " + idSuperheroe);
+			throw new NoSuchElementException(MENSJENOID + idSuperheroe);
 		}
 		// entidad a DTO
-		SuperheroeDTO superheroeDTO = modelMapper.map(superheroe.get(), SuperheroeDTO.class);
+		SuperheroeDTO superheroeDTO = servicio.superHeroeMapperToDto(superheroe.get());
+
 		return ResponseEntity.ok().body(superheroeDTO);
 	}
 
@@ -124,18 +151,22 @@ public class SuperheroeControlador {
 	 * 
 	 */
 	@PutMapping("{id}")
-	public ResponseEntity<Superheroe> actualizarSuperheroe(@PathVariable(value = "id") Integer idSuperheroe,
+	public ResponseEntity<SuperheroeDTO> actualizarSuperheroe(@PathVariable(value = "id") Integer idSuperheroe,
 			@RequestBody SuperheroeDTO superheroeDTO) {
 
-		logger.debug("Actualizando superheroe con id {} y data {}", idSuperheroe, superheroeDTO);
+		logger.info("Actualizando superheroe con id {} y data {}", idSuperheroe, superheroeDTO);
+
+		var superheroe = modelMapper.map(superheroeDTO, Superheroe.class);
 
 		return servicio.buscarSuperheroePorId(idSuperheroe).map(superheroeGuardado -> {
 
-			superheroeGuardado.setNombre(superheroeDTO.getNombre());
-			superheroeGuardado.setHistoria(superheroeDTO.getHistoria());
+			superheroeGuardado.setNombre(superheroe.getNombre());
+			superheroeGuardado.setHistoria(superheroe.getHistoria());
+			superheroeGuardado.setUniversoId(superheroe.getUniversoId());
 
 			Superheroe superheroeActualizado = servicio.actualizarSuperheroe(superheroeGuardado);
-			return new ResponseEntity<>(superheroeActualizado, HttpStatus.OK);
+
+			return new ResponseEntity<>(servicio.superHeroeMapperToDto(superheroeActualizado), HttpStatus.OK);
 
 		}).orElseGet(() -> ResponseEntity.notFound().build());
 	}
@@ -152,12 +183,12 @@ public class SuperheroeControlador {
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	public void eliminarSuperheroe(@PathVariable(value = "id") Integer idSuperheroe) {
 
-		logger.debug("Eliminando superheroe con id {}", idSuperheroe);
+		logger.info("Eliminando superheroe con id {}", idSuperheroe);
 
 		// Validacion
 		Optional<Superheroe> superheroe = servicio.buscarSuperheroePorId(idSuperheroe);
 		if (superheroe.isEmpty()) {
-			throw new NoSuchElementException("No existe superheroe con id: " + idSuperheroe);
+			throw new NoSuchElementException(MENSJENOID + idSuperheroe);
 		}
 		servicio.borrarSuperheroe(superheroe.get());
 	}
@@ -174,12 +205,12 @@ public class SuperheroeControlador {
 	@ResponseStatus(code = HttpStatus.OK)
 	public ResponseEntity<String> matarSuperheroe(@PathVariable(value = "id") Integer idSuperheroe) {
 
-		logger.debug("Matando al superheroe con id {}", idSuperheroe);
+		logger.info("Matando al superheroe con id {}", idSuperheroe);
 
 		// Validacion
 		Optional<Superheroe> superheroe = servicio.buscarSuperheroePorId(idSuperheroe);
 		if (superheroe.isEmpty()) {
-			throw new NoSuchElementException("No existe superheroe con id: " + idSuperheroe);
+			throw new NoSuchElementException(MENSJENOID + idSuperheroe);
 		}
 		servicio.matarSuperheroe(superheroe.get());
 		return ResponseEntity.ok().body("Superheroe muerto satisfactoriamente!");
@@ -197,15 +228,100 @@ public class SuperheroeControlador {
 	@ResponseStatus(code = HttpStatus.OK)
 	public ResponseEntity<String> resucitarSuperheroe(@PathVariable(value = "id") Integer idSuperheroe) {
 
-		logger.debug("Resucitando al superheroe con id {}", idSuperheroe);
+		logger.info("Resucitando al superheroe con id {}", idSuperheroe);
 
 		// Validacion
 		Optional<Superheroe> superheroe = servicio.buscarSuperheroePorId(idSuperheroe);
 		if (superheroe.isEmpty()) {
-			throw new NoSuchElementException("No existe superheroe con id: " + idSuperheroe);
+			throw new NoSuchElementException(MENSJENOID + idSuperheroe);
 		}
 		servicio.resucitarSuperheroe(superheroe.get());
 		return ResponseEntity.ok().body("Superheroe resucitado satisfactoriamente!");
+	}
+
+	/**
+	 * 
+	 * Endpoint GET /api/superheroees/{id}/listar-poderes Lista los poderes de un
+	 * Superheroe
+	 * 
+	 * @return 200
+	 * @exception not Found
+	 * 
+	 */
+	@GetMapping(value = "/{id}/listar-poderes")
+	@ResponseStatus(code = HttpStatus.OK)
+	public Set<Poder> listarPoderesDeSuperheroe(@PathVariable(value = "id") Integer idSuperheroe) {
+
+		logger.info("Listando poderes de Superheroe con id {}", idSuperheroe);
+
+		// Validacion
+		Optional<Superheroe> superheroe = servicio.buscarSuperheroePorId(idSuperheroe);
+		if (superheroe.isEmpty()) {
+			throw new NoSuchElementException(MENSJENOID + idSuperheroe);
+		}
+
+		return superheroe.get().getPoderes();
+	}
+
+	/**
+	 * 
+	 * Endpoint GET /api/superheroees/{id}/agregar-poderes Agrega poderes a un
+	 * Superheroe
+	 * 
+	 * @return 200
+	 * @exception not Found
+	 * 
+	 */
+	@PostMapping(value = "/{id}/agregar-poderes")
+	@ResponseStatus(code = HttpStatus.OK)
+	public ResponseEntity<String> agregarPoderesASuperheroe(@PathVariable(value = "id") Integer idSuperheroe,
+			@RequestBody List<Integer> listaIdPoderes) {
+
+		logger.info("Agregando poderes a Superheroe con id {}", idSuperheroe);
+
+		// Validacion
+		Optional<Superheroe> superheroe = servicio.buscarSuperheroePorId(idSuperheroe);
+		if (superheroe.isEmpty()) {
+			throw new NoSuchElementException(MENSJENOID + idSuperheroe);
+		}
+
+		if (Boolean.FALSE.equals(servicio.validaPoderes(listaIdPoderes))) {
+			throw new IllegalArgumentException("Poderes no válidos");
+		}
+
+		servicio.agregaPoderes(superheroe.get(), listaIdPoderes);
+
+		return ResponseEntity.ok().body("Poderes agregados satisfactoriamente!");
+	}
+
+	/**
+	 * 
+	 * Endpoint GET /api/superheroees/{id}/poderes Elimina poderes a un Superheroe
+	 * 
+	 * @return 200
+	 * @exception not Found
+	 * 
+	 */
+	@PostMapping(value = "/{id}/eliminar-poderes")
+	@ResponseStatus(code = HttpStatus.OK)
+	public ResponseEntity<String> eliminarPoderesASuperheroe(@PathVariable(value = "id") Integer idSuperheroe,
+			@RequestBody List<Integer> listaIdPoderes) {
+
+		logger.info("Eliminando poderes a Superheroe con id {}", idSuperheroe);
+
+		// Validacion
+		Optional<Superheroe> superheroe = servicio.buscarSuperheroePorId(idSuperheroe);
+		if (superheroe.isEmpty()) {
+			throw new NoSuchElementException(MENSJENOID + idSuperheroe);
+		}
+
+		if (Boolean.FALSE.equals(servicio.validaPoderes(listaIdPoderes))) {
+			throw new IllegalArgumentException("Lista de Poderes no válidos");
+		}
+
+		servicio.eliminarPoderes(superheroe.get(), listaIdPoderes);
+
+		return ResponseEntity.ok().body("Poderes eliminados satisfactoriamente!");
 	}
 
 }

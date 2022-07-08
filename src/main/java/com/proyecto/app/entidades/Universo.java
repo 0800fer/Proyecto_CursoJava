@@ -10,15 +10,19 @@ import javax.validation.constraints.Size;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * 
  * Definición de la entidad que representa un Universo
  * 
  */
-@Data
+@Getter
+@Setter
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -32,7 +36,7 @@ public class Universo {
 	private Integer id;
 
 	@Column(name = "nombre", unique = true)
-	@Size(max = 50)
+	@Size(max = 50, message = "Excede máxima longitut: 50")
 	private String nombre;
 
 	@Column(name = "descripcion")

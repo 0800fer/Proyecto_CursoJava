@@ -1,26 +1,28 @@
 package com.proyecto.app.entidades;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.util.ArrayList;
+import java.util.List;
 
-@Data
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class SuperheroeDTO {
 
 	private Integer id;
 	private String nombre;
 	private String historia;
+	@Builder.Default
 	private Boolean estaVivo = true;
-	private String universo;
-
-	public SuperheroeDTO(Superheroe superheroe) {
-		this.id = superheroe.getId();
-		this.nombre = superheroe.getNombre();
-		this.historia = superheroe.getHistoria();
-		this.estaVivo = superheroe.getEstaVivo();
-//		this.universo = superheroe.getUniverso().getNombre();
-	}
+	private Integer universoId;
+	@Builder.Default
+	private List<String> poderes = new ArrayList<>();
 
 }

@@ -1,13 +1,15 @@
 package com.proyecto.app.servicios;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
+import com.proyecto.app.entidades.Poder;
 import com.proyecto.app.entidades.Superheroe;
+import com.proyecto.app.entidades.SuperheroeDTO;
 import com.proyecto.app.repositorios.ISuperheroeRepositorio;
 
 /**
@@ -20,6 +22,9 @@ public class SuperheroeServicioImpl implements ISuperheroeServicio {
 
 	@Autowired
 	ISuperheroeRepositorio superheroeRepositorio;
+
+	@Autowired
+	IPoderServicio poderServicio;
 
 	@Override
 	public List<Superheroe> listarTodosLosSuperheroes() {
@@ -42,12 +47,21 @@ public class SuperheroeServicioImpl implements ISuperheroeServicio {
 	}
 
 	@Override
-	public Superheroe crearSuperheroe(Superheroe superheroe) {
-		Optional<Superheroe> superHeroeExistente = superheroeRepositorio.findByNombre(superheroe.getNombre());
-		if (superHeroeExistente.isPresent()) {
-			throw new DuplicateKeyException("Ya existe Universo con nombre: " + superHeroeExistente.get().getNombre());
+	public Superheroe crearSuperheroe(Superheroe superheroe, List<Integer> listaPoderes) {
+
+		// Crea Superheroe
+		var superHeroeNuevo = Superheroe.builder().id(superheroe.getId()).nombre(superheroe.getNombre())
+				.historia(superheroe.getHistoria()).universoId(superheroe.getUniversoId()).build();
+		var superheroeGuardado = superheroeRepositorio.save(superHeroeNuevo);
+
+		// Agrega Poderes
+		for (Integer id : listaPoderes) {
+			var poder = poderServicio.buscarPoderPorId(id);
+			if (poder.isPresent()) {
+				superheroeGuardado.getPoderes().add(poder.get());
+			}
 		}
-		return superheroeRepositorio.save(superheroe);
+		return superheroeRepositorio.save(superheroeGuardado);
 	}
 
 	@Override
@@ -78,4 +92,55 @@ public class SuperheroeServicioImpl implements ISuperheroeServicio {
 		superheroeRepositorio.save(superheroe);
 	}
 
+	@Override
+	public SuperheroeDTO superHeroeMapperToDto(Superheroe superheroe) {
+
+		List<String> listaPoderes = new ArrayList<>();
+
+		for (Poder poder : superheroe.getPoderes()) {
+			listaPoderes.add(poder.getNombre());
+		}
+		return SuperheroeDTO.builder().id(superheroe.getId()).nombre(superheroe.getNombre())
+				.historia(superheroe.getHistoria()).universoId(superheroe.getUniversoId()).poderes(listaPoderes)
+				.build();
+	}
+
+	@Override
+	public Boolean validaPoderes(List<Integer> lista) {
+		int cantidadPoderesValidos = 0;
+		Boolean listaValida = true;
+		for (Integer id : lista) {
+			Optional<Poder> poderExiste = poderServicio.buscarPoderPorId(id);
+			if (poderExiste.isPresent())
+				cantidadPoderesValidos++;
+			else
+				listaValida = false;
+		}
+		return (listaValida) && (cantidadPoderesValidos > 0);
+	}
+
+	public void agregaPoderes(Superheroe superheroe, List<Integer> listaIdPoderes) {
+		// Agrega Poderes
+		for (Integer id : listaIdPoderes) {
+			var poder = poderServicio.buscarPoderPorId(id);
+			if (poder.isPresent()) {
+				superheroe.getPoderes().add(poder.get());
+			}
+		}
+		superheroeRepositorio.save(superheroe);
+	}
+
+	public void eliminarPoderes(Superheroe superheroe, List<Integer> listaIdPoderes) {
+		// Elimina Poderes
+		for (Integer id : listaIdPoderes) {
+			var poder = poderServicio.buscarPoderPorId(id);
+			if (poder.isPresent()) {
+				superheroe.getPoderes().remove(poder.get());
+			}
+		}
+		if (superheroe.getPoderes().isEmpty()) {
+			throw new IllegalArgumentException("El superheroe no puede quedarse sin poderes");
+		}
+		superheroeRepositorio.save(superheroe);
+	}
 }
